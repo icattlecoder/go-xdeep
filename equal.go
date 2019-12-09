@@ -13,6 +13,8 @@ type Option struct {
 	// Fields than in IgnoreFields will skip compare with each other.
 	// This is useful when you compare with object which come from create api results, which auto create id, create_at, updated_at.
 	IgnoreFields []string
+	// ignore fields with tag, eg. `json`
+	IgnoreByTagName string
 	// If set true, compare ignore the items order, which means `[1, 2]` equals `[2, 1]`.
 	// If compared items is top level, just set empty key to true.
 	IgnoreArrayOrder map[string]bool
@@ -153,9 +155,27 @@ func equalMap(expectV, actualV reflect.Value, path string, opt *Option) error {
 func equalStruct(expectV, actualV reflect.Value, path string, opt *Option) error {
 
 	fieldNum := expectV.Type().NumField()
+	t := expectV.Type()
+
 	for i := 0; i < fieldNum; i++ {
+
+		ipath := joinPath(path, ".", t.Field(i).Name)
+		if opt.IgnoreByTagName != "" {
+			tag, ok := t.Field(i).Tag.Lookup(opt.IgnoreByTagName)
+			if ok {
+				if tag == "-" {
+					continue
+				}
+				if tag == "" {
+					ipath = joinPath(path, ".", t.Field(i).Name)
+				} else {
+					ipath = joinPath(path, ".", tag)
+				}
+			}
+		}
+
 		if expectV.Field(i).CanInterface() {
-			if err := equal(expectV.Field(i).Interface(), actualV.Field(i).Interface(), joinPath(path, ".", expectV.Type().Field(i).Name), opt); err != nil {
+			if err := equal(expectV.Field(i).Interface(), actualV.Field(i).Interface(), ipath, opt); err != nil {
 				return err
 			}
 		}

@@ -7,9 +7,9 @@ import (
 )
 
 type Foo struct {
-	Name         string
-	Arr          []int
-	M            map[string]interface{}
+	Name         string                 `json:"name"`
+	Arr          []int                  `json:"-"`
+	M            map[string]interface{} `json:""`
 	InterfaceArr []interface{}
 	T            time.Time
 }
@@ -235,6 +235,29 @@ func TestEqual(t *testing.T) {
 					"Arr": true,
 				},
 				IgnoreFields: []string{"M.string"},
+			},
+		},
+		{
+			Expect: Foo{
+				Name: "f1",
+			},
+			Actual: Foo{
+				Name: "f2",
+			},
+			Opt: &Option{
+				IgnoreFields:    []string{"name"},
+				IgnoreByTagName: "json",
+			},
+		},
+		{
+			Expect: Foo{
+				Arr: []int{1},
+			},
+			Actual: Foo{
+				Arr: []int{2},
+			},
+			Opt: &Option{
+				IgnoreByTagName: "json",
 			},
 		},
 	}
