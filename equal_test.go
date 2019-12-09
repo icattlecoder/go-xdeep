@@ -205,6 +205,38 @@ func TestEqual(t *testing.T) {
 			},
 			Err: "T: different value",
 		},
+		{
+			Expect: Foo{
+				Name: "foo",
+				Arr:  []int{1, 3, 9},
+				M: map[string]interface{}{
+					"int":    1,
+					"string": "2",
+					"foo": &EqualBar{
+						Name: "bar 1",
+					},
+				},
+				T: t1,
+			},
+			Actual: Foo{
+				Name: "foo",
+				Arr:  []int{9, 3, 1},
+				M: map[string]interface{}{
+					"int":    1,
+					"string": "!2",
+					"foo": &EqualBar{
+						Name: "bar 1 copy",
+					},
+				},
+				T: t1,
+			},
+			Opt: &Option{
+				IgnoreArrayOrder: map[string]bool{
+					"Arr": true,
+				},
+				IgnoreFields: []string{"M.string"},
+			},
+		},
 	}
 
 	for k, c := range cases {
