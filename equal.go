@@ -18,6 +18,8 @@ type Option struct {
 	// If set true, compare ignore the items order, which means `[1, 2]` equals `[2, 1]`.
 	// If compared items is top level, just set empty key to true.
 	IgnoreArrayOrder map[string]bool
+	// deep(default), or unixNano
+	TimeEqual string
 
 	ignoredPath map[string]struct{}
 }
@@ -121,9 +123,7 @@ func equal(expect interface{}, actual interface{}, path string, opt *Option) err
 	}
 
 	if expectT == reflect.TypeOf(time.Time{}) {
-		if !reflect.DeepEqual(expectV.Interface(), actualV.Interface()) {
-			return fmt.Errorf("%s: different value, %v vs %v", path, expectV.Interface(), actualV.Interface())
-		}
+		return equalTime(expect.(time.Time), actual.(time.Time), path, opt.TimeEqual)
 	}
 
 	if expectT.Kind() == reflect.Struct {
@@ -132,6 +132,21 @@ func equal(expect interface{}, actual interface{}, path string, opt *Option) err
 
 	if !reflect.DeepEqual(expectV.Interface(), actualV.Interface()) {
 		return fmt.Errorf("%s: different value, %v vs %v", path, expectV.Interface(), actualV.Interface())
+	}
+	return nil
+}
+
+func equalTime(expect, actual time.Time, path string, equal string) error {
+	if equal == "unixNano" {
+		t1 := expect.UnixNano()
+		t2 := actual.UnixNano()
+		if t1 != t2 {
+			return fmt.Errorf("%s: different unixNano time, %v vs %v", path, t1, t2)
+		}
+		return nil
+	}
+	if !reflect.DeepEqual(expect, actual) {
+		return fmt.Errorf("%s: different value, %v vs %v", path, expect, actual)
 	}
 	return nil
 }

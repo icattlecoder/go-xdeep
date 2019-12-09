@@ -60,6 +60,7 @@ func TestEqual(t *testing.T) {
 
 	t1 := time.Now()
 	t2 := t1
+	t3 := t2.UTC()
 
 	cases := []struct {
 		Expect interface{}
@@ -259,6 +260,26 @@ func TestEqual(t *testing.T) {
 			Opt: &Option{
 				IgnoreByTagName: "json",
 			},
+		},
+		{
+			Expect: t2,
+			Actual: t3,
+			Opt: &Option{
+				TimeEqual: "unixNano",
+			},
+		},
+		{
+			Expect: t2,
+			Actual: t3,
+			Err: ": different value",
+		},
+		{
+			Expect: time.Now(),
+			Actual: time.Now().Add(1),
+			Opt: &Option{
+				TimeEqual: "unixNano",
+			},
+			Err: ": different unixNano time",
 		},
 	}
 
