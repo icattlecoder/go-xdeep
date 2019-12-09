@@ -178,6 +178,7 @@ func equalStruct(expectV, actualV reflect.Value, path string, opt *Option) error
 		if opt.IgnoreByTagName != "" {
 			tag, ok := t.Field(i).Tag.Lookup(opt.IgnoreByTagName)
 			if ok {
+				tag = strings.Split(tag, ",")[0]
 				if tag == "-" {
 					continue
 				}
@@ -204,8 +205,8 @@ func equalSlice(expectV, actualV reflect.Value, path string, opt *Option) error 
 	if size != actualV.Len() {
 		return fmt.Errorf("%s: different array/slice length, %v vs %v", path, size, actualV.Len())
 	}
-
-	if !opt.IgnoreArrayOrder[path] {
+	// `*` means ignore all path
+	if !opt.IgnoreArrayOrder[path] && !opt.IgnoreArrayOrder["*"] {
 		for i := 0; i < size; i++ {
 			ipath := joinPath(path, "[", strconv.Itoa(i), "]")
 			if err := equal(expectV.Index(i).Interface(), actualV.Index(i).Interface(), ipath, opt); err != nil {
@@ -220,7 +221,7 @@ func equalSlice(expectV, actualV reflect.Value, path string, opt *Option) error 
 		for i := 0; i < size; i++ {
 			for j := 0; j < size; j++ {
 				ipath := joinPath(path, "[", strconv.Itoa(i), "]")
-				if err := equal(expectV.Index(i).Interface(), actualV.Index(j).Interface(), ipath, opt); err == nil {
+				if err := equal(a.Index(i).Interface(), b.Index(j).Interface(), ipath, opt); err == nil {
 					continue L1
 				}
 			}

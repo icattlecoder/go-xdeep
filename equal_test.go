@@ -79,7 +79,7 @@ func TestEqual(t *testing.T) {
 					"k4": t1,
 				},
 				InterfaceArr: []interface{}{
-					"1", 2,
+					"1", "2",
 				},
 			},
 			Actual: Foo{
@@ -101,7 +101,7 @@ func TestEqual(t *testing.T) {
 					"InterfaceArr": true,
 				},
 			},
-			Err: "InterfaceArr[1]: 2 not found in [2 1]",
+			Err: "",
 		},
 		{
 			Expect: "2",
@@ -148,7 +148,7 @@ func TestEqual(t *testing.T) {
 		},
 		{
 			Expect: &Foo{},
-			Actual: &Foo{},
+			Actual: &Foo{Name: "foo"},
 			Opt: &Option{
 				IgnoreFields: []string{"Name"},
 			},
@@ -187,6 +187,26 @@ func TestEqual(t *testing.T) {
 			Expect: []string{"2", "1"},
 			Actual: []string{"1", "2"},
 			Err:    "different value, 2 vs 1",
+		},
+		{
+			Expect: []string{"1", "1"},
+			Actual: []string{"1", "2"},
+			Opt: &Option{
+				IgnoreArrayOrder: map[string]bool{
+					"": true,
+				},
+			},
+			Err:    "[1]: 2 not found in [1 1]",
+		},
+		{
+			Expect: []string{"1", "2"},
+			Actual: []string{"1", "1"},
+			Opt: &Option{
+				IgnoreArrayOrder: map[string]bool{
+					"": true,
+				},
+			},
+			Err:    "[1]: 2 not found in [1 1]",
 		},
 		{
 			Expect: m1,
@@ -271,7 +291,7 @@ func TestEqual(t *testing.T) {
 		{
 			Expect: t2,
 			Actual: t3,
-			Err: ": different value",
+			Err:    ": different value",
 		},
 		{
 			Expect: time.Now(),
