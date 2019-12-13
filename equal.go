@@ -160,7 +160,18 @@ func equalMap(expectV, actualV reflect.Value, path string, opt *Option) error {
 	}
 
 	for _, key := range expectKeys {
-		if err := equal(expectV.MapIndex(key).Interface(), actualV.MapIndex(key).Interface(), joinPath(path, ".", key.String()), opt); err != nil {
+		v1 := expectV.MapIndex(key)
+		v2 := actualV.MapIndex(key)
+		ipath := joinPath(path, ".", key.String())
+		if !v1.IsValid() || !v2.IsValid() {
+			return fmt.Errorf("%s: different map key isValid, %v vs %v", ipath, v1.IsValid(), v2.IsValid())
+		}
+
+		if v1.IsNil() && v2.IsNil() {
+			continue
+		}
+
+		if err := equal(expectV.MapIndex(key).Interface(), actualV.MapIndex(key).Interface(), ipath, opt); err != nil {
 			return err
 		}
 	}

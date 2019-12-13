@@ -196,7 +196,7 @@ func TestEqual(t *testing.T) {
 					"": true,
 				},
 			},
-			Err:    "[1]: 2 not found in [1 1]",
+			Err: "[1]: 2 not found in [1 1]",
 		},
 		{
 			Expect: []string{"1", "2"},
@@ -206,7 +206,7 @@ func TestEqual(t *testing.T) {
 					"": true,
 				},
 			},
-			Err:    "[1]: 2 not found in [1 1]",
+			Err: "[1]: 2 not found in [1 1]",
 		},
 		{
 			Expect: m1,
@@ -300,6 +300,23 @@ func TestEqual(t *testing.T) {
 				TimeEqual: "unixNano",
 			},
 			Err: ": different unixNano time",
+		},
+		{
+			Expect: map[string]interface{}{
+				"key": nil,
+			},
+			Actual: map[string]interface{}{
+				"key": nil,
+			},
+		},
+		{
+			Expect: map[string]interface{}{
+				"key": nil,
+			},
+			Actual: map[string]interface{}{
+				"key2": nil,
+			},
+			Err: "key: different map key isValid, true vs false",
 		},
 	}
 
