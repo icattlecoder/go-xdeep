@@ -79,6 +79,14 @@ func equal(expect interface{}, actual interface{}, path string, opt *Option) err
 		return fmt.Errorf("%s: different Type, %v vs %v", path, expectT, actualT)
 	}
 
+	if expect == nil && actual == nil {
+		return nil
+	}
+
+	if (expect != nil && actual == nil) || (expect == nil && actual != nil) {
+		return fmt.Errorf("%s: different IsNil, %v vs %v", path, expect, actual)
+	}
+
 	expectV := reflect.ValueOf(expect)
 	actualV := reflect.ValueOf(actual)
 
@@ -165,10 +173,6 @@ func equalMap(expectV, actualV reflect.Value, path string, opt *Option) error {
 		ipath := joinPath(path, ".", key.String())
 		if !v1.IsValid() || !v2.IsValid() {
 			return fmt.Errorf("%s: different map key isValid, %v vs %v", ipath, v1.IsValid(), v2.IsValid())
-		}
-
-		if v1.IsNil() && v2.IsNil() {
-			continue
 		}
 
 		if err := equal(expectV.MapIndex(key).Interface(), actualV.MapIndex(key).Interface(), ipath, opt); err != nil {

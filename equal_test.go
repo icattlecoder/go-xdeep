@@ -311,6 +311,14 @@ func TestEqual(t *testing.T) {
 		},
 		{
 			Expect: map[string]interface{}{
+				"key": "value",
+			},
+			Actual: map[string]interface{}{
+				"key": "value",
+			},
+		},
+		{
+			Expect: map[string]interface{}{
 				"key": nil,
 			},
 			Actual: map[string]interface{}{
